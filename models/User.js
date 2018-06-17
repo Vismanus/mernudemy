@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema // eslint-disable-line prefer-destructuring
+const { Schema } = require('mongoose')
 
 // Create Schema
 const UserSchema = new Schema({
@@ -24,5 +24,4 @@ const UserSchema = new Schema({
   }
 })
 
-// eslint-disable-next-line no-multi-assign, no-undef
-module.exports = User = mongoose.model('users', UserSchema)
+module.exports = mongoose.model('users', UserSchema)

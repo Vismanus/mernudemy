@@ -1,7 +1,7 @@
 const express = require('express')
 const mongoose = require('mongoose')
 
-const auth = require('./routes/api/auth')
+const users = require('./routes/api/users')
 const profile = require('./routes/api/profile')
 const posts = require('./routes/api/posts')
 
@@ -19,7 +19,7 @@ mongoose
 app.get('/', (req, res) => res.send('Hello world!'))
 
 // Use Routes
-app.use('/api/auth', auth)
+app.use('/api/users', users)
 app.use('/api/profile', profile)
 app.use('/api/posts', posts)
 

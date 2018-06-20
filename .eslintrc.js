@@ -12,7 +12,8 @@ module.exports = {
   },
   "plugins": [
     "react",
-    "jsx-a11y"
+    "jsx-a11y",
+    "prettier"
   ],
   "parserOptions": {
     "ecmaVersion": 6,
@@ -22,6 +23,13 @@ module.exports = {
     }
   },
   rules: {
+    'prettier/prettier': [
+      'error',
+      {
+        semi: false,
+        singleQuote: true
+      }
+    ],
     // extend / overwrite airbnb linting rules
     'comma-dangle': [2, 'never'], // disallow trailing commas
     semi: [2, 'never'], // disallow semicolons
@@ -56,8 +64,5 @@ module.exports = {
     'max-len': 0, // do not enforce maximum line length
     'react/forbid-prop-types': 0, // allow less specific propTypes
     "import/no-webpack-loader-syntax": 0 // allow webpack syntax for imports
-  },
-  "plugins": [
-    "prettier"
-  ]
+  }
 }

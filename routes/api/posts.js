@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const passport = require('passport')
 
-// Post model
+// Models
 const Post = require('../../models/Post')
 
 // Validation
@@ -61,6 +61,29 @@ router.post(
     })
 
     newPost.save().then(post => res.json(post))
+  }
+)
+
+// @route   DELETE api/posts/:id
+// @desc    Delete post by id
+// @access  Private
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Post.findOneAndRemove({ user: req.user.id, _id: req.params.id })
+      .then(post => {
+        if (post) {
+          res.status(200).json({ post: 'Post deleted' })
+          return
+        }
+        res.status(401).json({ post: 'No post found' })
+      })
+      .catch(err =>
+        res
+          .status(404)
+          .json({ postNotFound: 'Error deleting post', error: err })
+      )
   }
 )
 

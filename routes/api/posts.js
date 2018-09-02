@@ -142,4 +142,64 @@ router.post(
   }
 )
 
+// @route   POST api/posts/comment/:postId
+// @desc    Add comment to post
+// @access  Private
+router.post(
+  '/comment/:postId',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    const { errors, isValid } = validatePostInput(req.body)
+
+    if (!isValid) {
+      res.status(400).json(errors)
+    }
+
+    Post.findById(req.params.postId)
+      .then(post => {
+        const newComment = {
+          text: req.body.text,
+          name: req.body.name,
+          avatar: req.body.avatar,
+          user: req.user.id
+        }
+        post.comments.unshift(newComment)
+        post.save().then(updatedPost => res.json(updatedPost))
+      })
+      .catch(err =>
+        res.status(404).json({ postNotFound: 'No post found', error: err })
+      )
+  }
+)
+
+// @route   DELETE api/posts/comment/:postId/:commentId
+// @desc    Delete comment from post
+// @access  Private
+router.delete(
+  '/comment/:postId/:commentId',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    /* eslint-disable no-underscore-dangle */
+    Post.findById(req.params.postId)
+      .then(post => {
+        if (
+          post.comments.filter(
+            comment => comment._id.toString() === req.params.commentId
+          ).length === 0
+        ) {
+          res.status(404).json({ commentNotFound: 'Comment not found' })
+        }
+        const removeIndex = post.comments
+          .map(comment => comment._id.toString())
+          .indexOf(req.params.commentId)
+        post.comments.splice(removeIndex, 1)
+        post.save().then(updatedPost => res.json(updatedPost))
+      })
+      .catch(err =>
+        res.status(404).json({ postNotFound: 'No post found', error: err })
+      )
+    /* eslint-enable no-underscore-dangle */
+  }
+)
+
 module.exports = router

@@ -68,10 +68,10 @@ router.post(
 // @desc    Delete post by id
 // @access  Private
 router.delete(
-  '/:id',
+  '/:postId',
   passport.authenticate('jwt', { session: false }),
   (req, res) => {
-    Post.findOneAndRemove({ user: req.user.id, _id: req.params.id })
+    Post.findOneAndRemove({ user: req.user.id, _id: req.params.postId })
       .then(post => {
         if (post) {
           res.status(200).json({ post: 'Post deleted' })
@@ -83,6 +83,61 @@ router.delete(
         res
           .status(404)
           .json({ postNotFound: 'Error deleting post', error: err })
+      )
+  }
+)
+
+// @route   POST api/posts/like/:id
+// @desc    Like a post
+// @access  Private
+router.post(
+  '/like/:postId',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Post.findById(req.params.postId)
+      .then(post => {
+        if (
+          post.likes.filter(like => like.user.toString() === req.user.id)
+            .length > 0
+        ) {
+          res.status(400).json({ alreadyLiked: 'User already liked this post' })
+          return
+        }
+        post.likes.unshift({ user: req.user.id })
+        post.save().then(updatedPost => res.json(updatedPost))
+      })
+      .catch(err =>
+        res.status(404).json({ postNotFound: 'Error liking post', error: err })
+      )
+  }
+)
+
+// @route   POST api/posts/unlike/:id
+// @desc    Unlike a post
+// @access  Private
+router.post(
+  '/unlike/:postId',
+  passport.authenticate('jwt', { session: false }),
+  (req, res) => {
+    Post.findById(req.params.postId)
+      .then(post => {
+        if (
+          post.likes.filter(like => like.user.toString() === req.user.id)
+            .length === 0
+        ) {
+          res.status(400).json({ notLiked: 'User has not yet liked this post' })
+          return
+        }
+        const removeIndex = post.likes
+          .map(like => like.user.toString())
+          .indexOf(req.user.id)
+        post.likes.splice(removeIndex, 1)
+        post.save().then(updatedPost => res.json(updatedPost))
+      })
+      .catch(err =>
+        res
+          .status(404)
+          .json({ postNotFound: 'Error unliking post', error: err })
       )
   }
 )
